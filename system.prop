@@ -1,0 +1,11 @@
+# 硬件平台与加密属性
+ro.mediatek.platform=MT6771
+ro.hardware.gatekeeper=ZPD1201
+ro.hardware.kmsetkey=trustonic
+ro.mtk_tee_gp_support=1
+ro.mtk_trustonic_tee_support=1
+
+# 加密参数（适配FBE v2）
+ro.crypto.volume.filenames_mode=aes-256-cts
+ro.crypto.support_metadata_encrypt=true
+ro.crypto.volume.metadata.method=aes-256-xts
