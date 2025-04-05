@@ -1,6 +1,9 @@
 on init
     setprop sys.usb.configfs 1
     setprop sys.usb.ffs.aio_compat 1
+    start servicemanager
+    start hwservicemanager
+    start vndservicemanager
 
 on fs && property:ro.debuggable=0
     # distinguish USB shoulde connect or not, i.e. CDP vs SDP
@@ -24,3 +27,20 @@ on post-fs
     symlink /dev/block/by-name/preloader_b /dev/block/by-name/preloader_ufs_b
 
     exec u:r:update_engine:s0 root root -- /system/bin/mtk_plpath_utils
+
+on post-fs-data
+  # 挂载metadata分区（路径需与设备一致）
+  mkdir /metadata 0775 system system
+  mount ext4 /dev/block/by-name/md_udc /metadata noatime,nosuid,nodev,discard
+
+  # 启动Trustonic TEE守护进程
+  service mcDriverDaemon /vendor/bin/mcDriverDaemon --P1 /mnt/vendor/persist/mcRegistry -r /vendor/app/mcRegistry/...
+    class main
+    user root
+    seclabel u:r:recovery:s0
+
+on property:hwservicemanager.ready=true
+  # 启动加密服务
+  start vendor.keymaster-3-0-trustonic
+  start gatekeeper-1-0
+  
